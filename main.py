@@ -30,15 +30,15 @@ class Order(db.Model):
     end_date = db.Column(db.Date)
     address = db.Column(db.String(100))
     price = db.Column(db.Integer)
-    customer_id = db.Column(db.Integer)
-    executor_id = db.Column(db.Integer)
+    customer_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    executor_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
 
 class Offer(db.Model):
     __tablename__ = 'offer'
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer)
-    executor_id = db.Column(db.Integer)
+    order_id = db.Column(db.Integer, db.ForeignKey("order.id"))
+    executor_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
 
 def main():
@@ -47,6 +47,24 @@ def main():
 
 
 def insert_data():
+    new_users = []
+    for user in users:
+        new_users.append(
+            User(
+                id=user['id'],
+                first_name=user['first_name'],
+                last_name=user['last_name'],
+                age=user['age'],
+                email=user['email'],
+                role=user['role'],
+                phone=user['phone'],
+
+            )
+        )
+        with db.session.begin():
+            db. session.add_all(new_users)
+
+
     new_orders = []
     for order in orders:
         new_orders.append(
@@ -66,6 +84,17 @@ def insert_data():
         with db.session.begin():
             db. session.add_all(new_orders)
 
+    new_offers = []
+    for offer in offers:
+        new_offers.append(
+            Offer(
+                id=offer['id'],
+                order_id=offer['order_id'],
+                executor_id=offer['executor_id']
+            )
+        )
+        with db.session.begin():
+            db.session.add_all(new_offers)
 
 
 if __name__ == '__main__':
