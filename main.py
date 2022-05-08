@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
+from flask import Flask, request, jsonify
 from data import users, orders, offers
 from datetime import datetime
 
@@ -44,6 +44,7 @@ class Offer(db.Model):
 def main():
     db.create_all()
     insert_data()
+    app.run(debug=True)
 
 
 def insert_data():
@@ -95,6 +96,41 @@ def insert_data():
         )
         with db.session.begin():
             db.session.add_all(new_offers)
+
+
+@app.route('/orders/', methods=['GET','POST'])
+def orders_index():
+    if request.method == 'GET':
+        data = []
+        for order in Order.query.all():
+            data.append({
+                "id": order.id,
+                "name": order.name,
+                "description": order.description,
+                "start_date": order.start_date,
+                "end_date": order.end_date,
+                "address": order.address,
+                "price": order.price,
+                "customer_id": order.customer_id,
+                "executor_id": order.executor_id
+            })
+        return jsonify(data)
+
+    elif request.method == 'POST':
+        data = request.get_json()
+        new_order = Order(
+            name=data['name'],
+            description=data['description'],
+            start_date=data['start_date'],
+            end_date=data['end_date'],
+            address=data['address'],
+            price=['price'],
+            customer_id=['customer_id'],
+            executor_id=['executor_id']
+        )
+        with db.session.begin():
+            db.session.add_all(new_order)
+
 
 
 if __name__ == '__main__':
