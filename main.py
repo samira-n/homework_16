@@ -116,9 +116,60 @@ def users_index():
             })
         return jsonify(data)
 
+    elif request.method == 'POST':
+        data = request.get_json()
+        new_order = User(
+            #id=data['id'],
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            age=data['age'],
+            email=data['email'],
+            role=data['role'],
+            phone=data['phone'],
+        )
+
+        db.session.add(new_order)
+        db.session.commit()
+        return '', 200
 
 
+@app.route('/users/<int:oid>', methods=['GET', 'PUT', 'DELETE'])
+def users_by_oid(oid):
+    if request.method == 'GET':
+        user = User.query.get(oid)
+        data = {
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "age": user.age,
+            "email": user.email,
+            "role": user.role,
+            "phone": user.phone
+        }
+        return jsonify(data)
 
+    elif request.method == 'PUT':
+        data = request.get_json()
+        user = User.query.get(oid)
+
+        #user.id: data.get('id')
+        user.first_name = data.get('first_name')
+        user.last_name = data.get('last_name')
+        user.age = data.get('age')
+        user.email = data.get('email')
+        user.role: data.get('role')
+        user.phone = data.get('phone')
+
+        db.session.add(user)
+        db.session.commit()
+        return '', 200
+
+    elif request.method == 'DELETE':
+        user = User.query.get(oid)
+
+        db.session.delete(user)
+        db.session.commit()
+        return '', 200
 
 
 
@@ -143,6 +194,7 @@ def orders_index():
     elif request.method == 'POST':
         data = request.get_json()
         new_order = Order(
+            # id=data['id'],
             name=data['name'],
             description=data['description'],
             start_date=datetime.strptime(data['start_date'], '%m/%d/%Y'),
@@ -194,9 +246,15 @@ def orders_by_oid(oid):
 
     elif request.method == 'DELETE':
         order = Order.query.get(oid)
+
         db.session.delete(order)
         db.session.commit()
         return '', 200
+
+
+@app.route('/offers/', methods=['GET', 'POST'])
+def offers_index():
+
 
 
 if __name__ == '__main__':
