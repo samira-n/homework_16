@@ -62,8 +62,9 @@ def insert_data():
 
             )
         )
-        with db.session.begin():
-            db. session.add_all(new_users)
+
+        db. session.add_all(new_users)
+        db.session.commit()
 
 
     new_orders = []
@@ -82,8 +83,8 @@ def insert_data():
 
             )
         )
-        with db.session.begin():
-            db. session.add_all(new_orders)
+        db. session.add_all(new_orders)
+        db.session.commit()
 
     new_offers = []
     for offer in offers:
@@ -94,8 +95,9 @@ def insert_data():
                 executor_id=offer['executor_id']
             )
         )
-        with db.session.begin():
-            db.session.add_all(new_offers)
+
+        db.session.add_all(new_offers)
+        db.session.commit()
 
 
 @app.route('/orders/', methods=['GET','POST'])
@@ -121,16 +123,56 @@ def orders_index():
         new_order = Order(
             name=data['name'],
             description=data['description'],
-            start_date=data['start_date'],
-            end_date=data['end_date'],
+            start_date=datetime.strptime(data['start_date'], '%m/%d/%Y'),
+            end_date=datetime.strptime(data['end_date'], '%m/%d/%Y'),
             address=data['address'],
-            price=['price'],
-            customer_id=['customer_id'],
-            executor_id=['executor_id']
+            price=data['price'],
+            customer_id=data['customer_id'],
+            executor_id=data['executor_id']
         )
-        with db.session.begin():
-            db.session.add_all(new_order)
 
+        db.session.add(new_order)
+        db.session.commit()
+
+        return '', 200
+
+
+@app.route('/orders/<int:oid>', methods=['GET', 'PUT', 'DELETE'])
+def orders_by_oid(oid):
+    if request.method == 'GET':
+        order = Order.query.get(oid)
+        data = {
+            "id": order.id,
+            "name": order.name,
+            "description": order.description,
+            "start_date": order.start_date,
+            "end_date": order.end_date,
+            "address": order.address,
+            "price": order.price,
+            "customer_id": order.customer_id,
+            "executor_id": order.executor_id
+            }
+        return jsonify(data)
+
+    elif request.method == 'PUT':
+        data = request.get_json()
+        order = Order.query.get(oid)
+
+        order.name = data['name']
+        order.description = data['description']
+        order.start_date = datetime.strptime(data['start_date'], '%m/%d/%Y')
+        order.end_date = datetime.strptime(data['end_date'], '%m/%d/%Y')
+        order.address = data['address']
+        order.price = data['price']
+        order.customer_id = data['customer_id']
+        order.executor_id = data['executor_id']
+
+
+        db.session.add(order)
+        db.session.commit()
+
+
+        return '', 200
 
 
 if __name__ == '__main__':
