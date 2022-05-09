@@ -254,8 +254,58 @@ def orders_by_oid(oid):
 
 @app.route('/offers/', methods=['GET', 'POST'])
 def offers_index():
+    if request.method == 'GET':
+        data = []
+        for offer in Offer.query.all():
+            data.append({
+                "id": offer.id,
+                "order_id": offer.order_id,
+                "executor_id": offer.executor_id
+            })
+            return jsonify(data)
+
+    elif request.method == 'POST':
+        data = request.get_json()
+        new_offer = Offer(
+            #id=data['id'],
+            order_id=data['order_id'],
+            executor_id=data['executor_id']
+        )
+
+        db.session.add(new_offer)
+        db.session.commit()
+        return '', 200
 
 
+@app.route('/offers/<int:oid>', methods=['GET', 'PUT', 'DELETE'])
+def offers_by_oid(oid):
+    if request.method == 'GET':
+        offer = Offer.query.get(oid)
+        data = {
+            "id": offer.id,
+            "order_id": offer.order_id,
+            "executor_id": offer.executor_id
+        }
+        return jsonify(data)
+
+    elif request.method == 'PUT':
+        data = request.get_json()
+        offer = Offer.query.get(oid)
+
+        #offer.id = data.get('id'),
+        offer.order_id = data.get('order_id')
+        offer.executor_id = data.get('executor_id')
+
+        db.session.add(offer)
+        db.session.commit()
+        return '', 200
+
+    elif request.method == 'DELETE':
+        offer = Offer.query.get(oid)
+
+        db.session.delete(offer)
+        db.session.commit()
+        return '', 200
 
 if __name__ == '__main__':
     main()
