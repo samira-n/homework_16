@@ -100,7 +100,29 @@ def insert_data():
         db.session.commit()
 
 
-@app.route('/orders/', methods=['GET','POST'])
+@app.route('/users/', methods=['GET', 'POST'])
+def users_index():
+    if request.method == 'GET':
+        data = []
+        for user in User.query.all():
+            data.append({
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "age": user.age,
+                "email": user.email,
+                "role": user.role,
+                "phone":user.phone
+            })
+        return jsonify(data)
+
+
+
+
+
+
+
+@app.route('/orders/', methods=['GET', 'POST'])
 def orders_index():
     if request.method == 'GET':
         data = []
