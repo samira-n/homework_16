@@ -133,7 +133,6 @@ def orders_index():
 
         db.session.add(new_order)
         db.session.commit()
-
         return '', 200
 
 
@@ -158,20 +157,23 @@ def orders_by_oid(oid):
         data = request.get_json()
         order = Order.query.get(oid)
 
-        order.name = data['name']
-        order.description = data['description']
-        order.start_date = datetime.strptime(data['start_date'], '%m/%d/%Y')
-        order.end_date = datetime.strptime(data['end_date'], '%m/%d/%Y')
-        order.address = data['address']
-        order.price = data['price']
-        order.customer_id = data['customer_id']
-        order.executor_id = data['executor_id']
-
+        order.name = data.get('name')
+        order.description = data.get('description')
+        #order.start_date = data.get('start_date')
+        #order.end_date = data.get('end_date')
+        order.address = data.get('address')
+        order.price = data.get('price')
+        order.customer_id = data.get('customer_id')
+        order.executor_id = data.get('executor_id')
 
         db.session.add(order)
         db.session.commit()
+        return '', 200
 
-
+    elif request.method == 'DELETE':
+        order = Order.query.get(oid)
+        db.session.delete(order)
+        db.session.commit()
         return '', 200
 
 
