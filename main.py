@@ -112,7 +112,7 @@ def users_index():
                 "age": user.age,
                 "email": user.email,
                 "role": user.role,
-                "phone":user.phone
+                "phone": user.phone
             })
         return jsonify(data)
 
@@ -135,7 +135,11 @@ def users_index():
 
 @app.route('/users/<int:oid>', methods=['GET', 'PUT', 'DELETE'])
 def users_by_oid(oid):
-    if request.method == 'GET':
+    user = User.query.get(oid)
+    if not user:
+        return jsonify({"Ошибка": "user не найден"}), '404'
+
+    elif request.method == 'GET':
         user = User.query.get(oid)
         data = {
             "id": user.id,
@@ -212,7 +216,11 @@ def orders_index():
 
 @app.route('/orders/<int:oid>', methods=['GET', 'PUT', 'DELETE'])
 def orders_by_oid(oid):
-    if request.method == 'GET':
+    order = User.query.get(oid)
+    if not order:
+        return jsonify({"Ошибка": "order не найден"}), '404'
+
+    elif request.method == 'GET':
         order = Order.query.get(oid)
         data = {
             "id": order.id,
@@ -262,7 +270,7 @@ def offers_index():
                 "order_id": offer.order_id,
                 "executor_id": offer.executor_id
             })
-            return jsonify(data)
+        return jsonify(data)
 
     elif request.method == 'POST':
         data = request.get_json()
@@ -279,6 +287,10 @@ def offers_index():
 
 @app.route('/offers/<int:oid>', methods=['GET', 'PUT', 'DELETE'])
 def offers_by_oid(oid):
+    offer = User.query.get(oid)
+    if not offer:
+        return jsonify({"Ошибка": "offer не найден"}), '404'
+
     if request.method == 'GET':
         offer = Offer.query.get(oid)
         data = {
